@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Hotel Management System- Dashboard</title>	
+        <script src="../../js/jquery-1.11.1.min.js"></script>
+        <script src="../../js/components.js"></script>
+        <script src="../../assets/vendor/jquery/dist/jquery.min.js"></script>
+        <script src="../../assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../../assets/vendor/chart.js/dist/Chart.min.js"></script>
+        <script src="../../assets/vendor/chart.js/dist/Chart.extension.js"></script>
+        <link href="../../css/argon.css" rel="stylesheet">
+		<script src="../../js/swal.js"></script>
+		<link href="../../assets/vendor/nucleo/css/nucleo.css" rel="stylesheet">
+		<link href="../../assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">      
+
+        <!--Custom Font-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    </head>
+
+  <body>
+    <nav id="sidebar-collapse" class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+		<!-- sidebar -->
+	</nav>
+    <div class="main-content">
+		<nav id="header-collapse" class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
+				<!-- header -->
+			</nav>
+    <div style="background-image: url(../../assets/img/theme/restro00.jpg); background-size: cover;" class="header  pb-8 pt-5 pt-md-8">
+        <span class="mask bg-gradient-dark opacity-8"></span>
+          <div class="container-fluid">
+            <div class="header-body">
+            </div>
+          </div>
+        </div>
+        <!-- Page content -->
+        <div class="container-fluid mt--8">
+          <!-- Table -->
+          <div class="row">
+            <div class="col">
+              <div class="card shadow">
+                <div class="card-header border-0">
+                  <a href="#" class="btn btn-outline-success" id="add-customer-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Add New Customer
+                  </a>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Room No</th>
+                        <th scope="col">Arrival</th>
+                        <th scope="col">Total Price</th>
+                        <th scope="col">payed amount</th>
+                        <th scope="col">Owed</th>
+                        <th scope="col">action</th>
+
+
+
+                      </tr>
+                    </thead>
+                    <tbody id="tbody">
+                     
+                    
+                   
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title">Add New Customer</h5>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                  <form id="addCustomerForm" role="form">
+                      <div class="form-group">
+                          <label for="fullname">Full Name:</label>
+                          <input name='fullname' type="text" class="form-control" id="fullname" placeholder="Enter Full name" required>
+                          <div class="help-block with-errors"></div>
+                      </div>
+                      <div class="form-group">
+                          <label for="roomType">Room:</label>
+                          <select name='room' class="form-control" id="room" required>
+                              <option value="">Select Room</option>
+                          </select>
+                          <div class="help-block with-errors"></div>
+                      </div>
+                      <div class="form-group row">
+                          <div class="col-md-6">
+                              <label for="phoneNumber">Phone Number</label>
+                              <input name='phonenumber' type="text" class="form-control" id="phoneNumber" placeholder="Enter Phone No" required>
+                              <div class="help-block with-errors"></div>
+                          </div>
+                          <div class="col-md-6">
+                              <label for="cost">Cost per night</label>
+                              <input name='cost' type="text" class="form-control" id="cost" placeholder="Enter Room Price" required>
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="Checkin">Check in:</label>
+                        <input name='checkin' type="date" class="form-control" id="Checkin" min="${new Date().toISOString().slice(0, 10)}" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Checkout">Check out:</label>
+                        <input name='checkout' type="date" class="form-control" id="Checkout" min="${new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    
+                      <button type="submit" class="btn btn-primary" id="addCustomerBtn">Save</button>
+                  </form>
+                  
+              </div>
+         
+          </div>
+      </div>
+    </div>
+  
+
+<div id="payModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Make payment</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="payCustomerForm" role="form">
+                        <div class="form-group">
+                            <label for="Fullname">Fullname</label>
+                            <input name='customerName' type="text" class="form-control" id="customerName" required/>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input name='amount' type="number" min="0" class="form-control" id="amount" placeholder="Enter Amount" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <input name='bookingId' type="hidden" class="form-control" id="bookingId" required/>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                   
+                    <button type="submit" class="btn btn-primary" id="makePaymentBtn">Save</button>
+                </form>
+                
+            </div>
+       
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Make payment</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+              <form id="editCustomerForm" role="form">
+                      <div class="form-group">
+                          <label for="Fullname">Fullname</label>
+                          <input name='editFullname' type="text" class="form-control" id="editFullname" required/>
+                          <div class="help-block with-errors"></div>
+                      </div>
+                  <div class="form-group">
+                      <label for="Phonenumber">Phonenumber</label>
+                      <input name='phonenumber' type="text" class="form-control" id="phonenumber" placeholder="Enter Phonenumber" required>
+                      <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                      <label for="amount">Checkout</label>
+                      <input name='checkout' type="date" class="form-control"  id="checkout" required/>
+                      <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <input name='editBookingId' type="hidden" class="form-control" id="editBookingId" required/>
+                    <div class="help-block with-errors"></div>
+                </div>
+                  <div class="form-group">
+                    <input name='editRoomno' type="hidden" class="form-control" id="editRoomno" required/>
+                    <div class="help-block with-errors"></div>
+                </div>
+                  <button type="submit" class="btn btn-primary" id="makePaymentBtn">Save</button>
+              </form>
+                  <button name="delete" class="btn btn-danger" id="deleteBooking"><i class="fas fa-trash"></i> Delete</button>
+
+          </div>
+     
+      </div>
+  </div>
+</div>
+<div id="checkOutModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Check Out</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+              <form id="checkOutForm" role="form">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="Fullname">Fullname</label>
+                    <input name='checkOutFullname' type="text" class="form-control" id="checkOutFullname" disabled/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="Phonenumber">Phone Number</label>
+                    <input name='checkOutPhonenumber' type="text" class="form-control" id="checkOutPhonenumber" placeholder="Enter Phonenumber" disabled>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="amount">Days of Stay</label>
+                    <input name='daysOfStay' type="number" class="form-control" id="daysOfStay" disabled/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="amount">Total</label>
+                    <input name='total' type="number" min="0" class="form-control" id="total" disabled/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="amount">Amount payed</label>
+                    <input name='payed' type="number" min="0" class="form-control" id="payed" disabled/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="amount">Amount due</label>
+                    <input name='checkOutPayAmount' type="number" min="0" class="form-control" id="checkOutPayAmount" required/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <input name='roomno' type="hidden"  class="form-control" id="roomno" required/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <input name='bookingCheckOutId' type="hidden"  class="form-control" id="bookingCheckOutId" required/>
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <button type="submit" class="btn btn-primary" id="makePaymentBtn">Checkout</button>
+                  </div>
+                </div>
+              </form>              
+          </div>
+     
+      </div>
+  </div>
+</div>
+
+</div>   
+
+
+<script src="../../booking_renderer.js"></script>
+<script>
+
+</script>
+  </body>
+</html>

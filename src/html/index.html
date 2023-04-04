@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Hotel Management System- Dashboard</title>
+        <link href="../css/argon.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/datepicker3.css" rel="stylesheet">
+        <link href="../css/dataTables.bootstrap.min.css" rel="stylesheet">
+        <link href="../css/styles.css" rel="stylesheet">
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+        <!--Custom Font-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    </head>
+<body>
+    <div class="container">
+        <div class="card card-container">
+            <form id="login-form">
+                <div class="row">
+                    <div class="form-group col-lg-12">
+                        <label id="us">Username or Email</label>
+                        <input type="text" id="email" name="email" class="form-control" placeholder="" required
+                               data-error="Enter Username or Email">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group col-lg-12">
+                        <label id="pas">Password</label>
+                        <input type="password" name="password" id="password"class="form-control" placeholder="" required
+                               data-error="Enter Password">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+    
+                <button class="btn btn-lg btn-success btn-block btn-signin" type="submit" name="login">LOGIN</button>
+    
+            </form><!-- /form -->
+            <p id="mes"></p>
+            <a href="fodder.html">login</a>
+
+        </div><!-- /card-container -->
+    </div>
+    <script src="../index.js"></script>
+</body>
+</html>

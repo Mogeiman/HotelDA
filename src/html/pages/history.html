@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>History</title>	
+        <script src="../../js/jquery-1.11.1.min.js"></script>
+        <script src="../../js/components.js"></script>
+        <script src="../../assets/vendor/jquery/dist/jquery.min.js"></script>
+        <script src="../../assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="../../assets/vendor/chart.js/dist/Chart.min.js"></script>
+        <script src="../../assets/vendor/chart.js/dist/Chart.extension.js"></script>
+        <link href="../../css/argon.css" rel="stylesheet">
+		<script src="../../js/swal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js" integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+
+		<link href="../../assets/vendor/nucleo/css/nucleo.css" rel="stylesheet">
+		<link href="../../assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">      
+
+        <!--Custom Font-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    </head>
+
+  <body>
+    <nav id="sidebar-collapse" class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+		<!-- sidebar -->
+	</nav>
+    <div class="main-content">
+		<nav id="header-collapse" class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
+				<!-- header -->
+			</nav>
+    <div style="background-image: url(../../assets/img/theme/restro00.jpg); background-size: cover;" class="header  pb-8 pt-5 pt-md-8">
+        <span class="mask bg-gradient-dark opacity-8"></span>
+          <div class="container-fluid">
+            <div class="header-body">
+            </div>
+          </div>
+        </div>
+        <!-- Page content -->
+    <div class="container-fluid mt--8">
+          <!-- Table -->
+          <div class="row">
+            <div class="col">
+              <div class="card shadow">
+                <div class="card-header border-0 d-flex align-items-center justify-content-between container-fluid">
+                    <h3 class="mb-0">Booking History</h3>
+                    <div>
+                        <button id="filterButton" class="btn btn-primary btn-sm ml-2">Filter</button>
+                        <button id="downloadButton" class="btn btn-warning btn-sm ml-2">Download</button>
+                      </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Room No.</th>
+                        <th scope="col">Phone No.</th>
+                        <th scope="col">Arrival</th>
+                        <th scope="col">Total </th>
+                        <th scope="col">paid</th>
+                        <th scope="col">Owed</th>
+                        <th scope="col">Action</th>
+
+
+
+                      </tr>
+                    </thead>
+                    <tbody id="tbody">
+                     
+                    
+                   
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    <!-- Add Customer Modal -->
+    <div id="filterModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">filter</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="history-form" role="form">
+                <div class="form-group">
+                  <label for="customerName">Fullname</label>
+                  <input name='historyCustomerName' type="text" class="form-control" id="historyCustomerName">
+                  <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                    <label for="bookingStatus">Booking Status</label>
+                    <select name="bookingStatus" class="form-control" id="bookingStatus">
+                        <option value="">select option</option>
+                        <option value="1">booking</option>
+                        <option value="0">not booking</option>
+                    </select>
+                    </div>
+                <div class="form-grou col-md-6p">                    
+                <label for="paymentStatus">Payment Status</label>
+                  <select name="paymentStatus" class="form-control" id="paymentStatus">
+                    <option value="">select option</option>
+                    <option value="0">owed</option>
+                    <option value="1">not owed</option>
+                  </select>
+                </div>
+                </div>
+               
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="fromDate">from date</label>
+                    <input name='fromDate' type="date" class="form-control" id="fromDate">
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="toDate">To Date</label>
+                    <input name='toDate' type="date" class="form-control" id="toDate">
+                    <div class="help-block with-errors"></div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="makeFilterButton">filter</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="reinstateModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">filter</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="reinstate-booking-form" role="form">
+                <div class="form-group">
+                  <input name='reinstateId' type="hidden" class="form-control" id="reinstateId">
+                  <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group">
+                    <label for="roomType">Room:</label>
+                    <select name='reinstateRoom' class="form-control" id="reinstateRoom" required>
+                        <option value="">Select Room</option>
+                    </select>
+                    <div class="help-block with-errors"></div>
+                </div>
+                <div class="form-group">
+                    <label for="checkOut">Checkout Date</label>
+                    <input name='reinstateCheckOut' type="date" class="form-control" id="reinstateCheckOut">
+                    <div class="help-block with-errors"></div>
+                  </div>
+                <button type="submit" class="btn btn-primary" id="makeFilterButton">filter</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="payModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Make payment</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="payCustomerForm" role="form">
+                            <div class="form-group">
+                                <label for="Fullname">Fullname</label>
+                                <input name='customerName' type="text" class="form-control" id="customerName" required/>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input name='owedAmount' type="number" min="0" class="form-control" id="owedAmount" placeholder="Enter Amount" required>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                        <div class="form-group">
+                            <input name='bookingId' type="hidden" class="form-control" id="bookingId" required/>
+                            <div class="help-block with-errors"></div>
+                        </div>
+                       
+                        <button type="submit" class="btn btn-primary" id="makePaymentBtn">Save</button>
+                    </form>
+                    
+                </div>
+           
+            </div>
+        </div>
+    </div>
+
+</div>   
+
+
+<script src="../../history_renderer.js"></script>
+<script  src="../../download_pdf.js"></script>
+
+  </body>
+</html>

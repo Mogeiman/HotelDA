@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Statistics</title>	
+    <script src="../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../js/components.js"></script>
+    <script src="../../assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/argon.js?v=1.0.0"></script>
+    <script src="../../assets/vendor/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/vendor/chart.js/dist/Chart.extension.js"></script>
+    <link href="../../css/argon.css" rel="stylesheet">
+    <script src="../../js/swal.js"></script>
+    <link href="../../assets/vendor/nucleo/css/nucleo.css" rel="stylesheet">
+    <link href="../../assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">      
+
+    <!--Custom Font-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+</head>
+<body>
+    <nav id="sidebar-collapse" class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+		<!-- sidebar -->
+	</nav>
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="chart">
+                  <canvas id="pie-chart" style="height: 250px; width: 100%;"></canvas>
+                </div>
+                <div class="costs">
+                    <h4>Costs</h4>
+                    <div class="form-group">
+                      <label for="name-input form-label fs-6 ">Name:</label>
+                      <input type="text" class="form-control col-6" id="name-input" placeholder="Enter cost name">
+                    </div>
+                    <div class="form-group">
+                      <label for="amount-input form-label fs-6">Amount:</label>
+                      <input type="number" class="form-control col-6" id="amount-input" placeholder="Enter cost amount">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="add-cost-btn">Add</button>
+                  </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="chart">
+                  <canvas id="line-chart" style="height: 250px; width: 100%;"></canvas>
+                </div>
+                <div class="chart">
+                    <canvas id="profit-pie-chart" style="height: 250px; width: 100%;"></canvas>
+                  </div>
+                  <span id="profit-span"></span>
+
+
+
+              </div>
+
+            </div>
+          </div>
+          
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/chart.js" integrity="sha512-Cv3WnEz5uGwmTnA48999hgbYV1ImGjsDWyYQakowKw+skDXEYYSU+rlm9tTflyXc8DbbKamcLFF80Cf89f+vOQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../../stats_renderer.js"></script>
+</body>
+</html>

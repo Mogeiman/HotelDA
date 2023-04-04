@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Hotel Management System- Dashboard</title>	
+        <script src="../../js/jquery-1.11.1.min.js"></script>
+        <script src="../../js/components.js"></script>
+        <script src="../../assets/vendor/jquery/dist/jquery.min.js"></script>
+        <script src="../../assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="../../assets/vendor/chart.js/dist/Chart.min.js"></script>
+        <script src="../../assets/vendor/chart.js/dist/Chart.extension.js"></script>
+        <link href="../../css/argon.css" rel="stylesheet">
+		<script src="../../js/swal.js"></script>
+		<link href="../../assets/vendor/nucleo/css/nucleo.css" rel="stylesheet">
+		<link href="../../assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">      
+
+        <!--Custom Font-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    </head>
+
+  <body>
+    <nav id="sidebar-collapse" class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+		<!-- sidebar -->
+	</nav>
+    <div class="main-content">
+		<nav id="header-collapse" class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
+				<!-- header -->
+			</nav>
+    <div style="background-image: url(../../assets/img/theme/restro00.jpg); background-size: cover;" class="header  pb-8 pt-5 pt-md-8">
+        <span class="mask bg-gradient-dark opacity-8"></span>
+          <div class="container-fluid">
+            <div class="header-body">
+            </div>
+          </div>
+        </div>
+        <!-- Page content -->
+        <div class="container-fluid mt--8">
+          <!-- Table -->
+          <div class="row">
+  <div class="col">
+    <div class="card shadow">
+      <div class="card-header border-0">
+        <a href="#" class="btn btn-outline-success" id="add-room-btn">
+          <i class="fas fa-user-plus"></i>
+          Add New Room
+        </a>
+      </div>
+      <div class="table-responsive overflow-x-hidden">
+        
+      </div>
+      
+      </div>
+      
+    </div>
+  </div>
+  
+
+</div>
+
+
+<!-- Add Room Modal -->
+<div id="addRoomModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Room</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addRoomForm" role="form">
+                    <div class="form-group">
+                        <label for="roomType">Room Type:</label>
+                        <select name='type' class="form-control" id="roomType" required>
+                            <option value="">Select Room Type</option>
+                            <option value="single">Single</option>
+                            <option value="double">Double</option>
+                            <option value="family">Family</option>
+                        </select>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="roomNo">Room No:</label>
+                        <input name='room-no' type="text" class="form-control" id="roomNo" placeholder="Enter Room No" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="roomPrice">Room price:</label>
+                        <input name='room-price' type="text" class="form-control" id="roomPrice" placeholder="Enter Room No" required>
+                        <div class="help-block with-errors"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="addRoomBtn">Save</button>
+                </form>
+            </div>
+       
+        </div>
+    </div>
+</div>
+
+
+    <!---customer details-->
+    <div id="editModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Room Details</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRoomForm" role="form">
+                            <div class="form-group">
+                                <label for="Fullname">Room No.</label>
+                                <input name='editRoomNo' type="text" class="form-control" id="editRoomNo" required/>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <div class="form-group">
+                                <input name='editRoomId' type="hidden" class="form-control" id="editRoomId" required/>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="editRoomButton">Save</button>
+                    </form>
+                </div>
+           
+            </div>
+        </div>
+      </div>
+    <!---customer details ends here-->
+
+    <!-- Check In Modal -->
+    <div id="checkIn" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-center"><b>Room - Check In</b></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-responsive table-bordered">
+                                
+                                <tbody>
+                                <tr>
+                                    <td><b>Customer Name</b></td>
+                                    <td id="getCustomerName"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Room Type</b></td>
+                                    <td id="getRoomType"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Room Number</b></td>
+                                    <td id="getRoomNo"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Check In</b></td>
+                                    <td id="getCheckIn"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Check Out</b></td>
+                                    <td id="getCheckOut"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Total Price</b></td>
+                                    <td id="getTotalPrice"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <form role="form" id="advancePayment">
+                                <div class="payment-response"></div>
+                                <div class="form-group col-lg-12">
+                                    <label>Advance Payment</label>
+                                    <input type="number" class="form-control" id="advance_payment"
+                                           placeholder="Please Enter Amounts Here..">
+                                </div>
+                                <input type="hidden" id="getBookingID" value="">
+                                <button type="submit" class="btn btn-primary pull-right">Payment & Check In</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Check Out Modal-->
+    <div id="checkOut" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-center"><b>Room- Check Out</b></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-responsive table-bordered">
+                                
+                                <tbody>
+                                <tr>
+                                    <td><b>Customer Name</b></td>
+                                    <td id="getCustomerName_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Room Type</b></td>
+                                    <td id="getRoomType_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Room Number</b></td>
+                                    <td id="getRoomNo_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Check In</b></td>
+                                    <td id="getCheckIn_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Check Out</b></td>
+                                    <td id="getCheckOut_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Total Amount</b></td>
+                                    <td id="getTotalPrice_n"></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Remaining Amount</b></td>
+                                    <td id="getRemainingPrice_n"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <form role="form" id="checkOutRoom_n" data-toggle="validator">
+                                <div class="checkout-response"></div>
+                                <div class="form-group col-lg-12">
+                                    <label><b>Remaining Payment</b></label>
+                                    <input type="text" class="form-control" id="remaining_amount"
+                                           placeholder="Remaining Payment" required
+                                           data-error="Please Enter Remaining Amount">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                                <input type="hidden" id="getBookingId_n" value="">
+                                <button type="submit" class="btn btn-primary pull-right">Proceed Checkout</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+  
+
+</div>    <!--/.main-->
+
+
+<script src="../../rooms_renderer.js"></script>
+  </body>
+</html>
