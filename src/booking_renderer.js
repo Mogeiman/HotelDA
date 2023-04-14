@@ -15,8 +15,12 @@ function renderRooms(Rooms) {
       }
     });
   } else {
-    alert('No rooms created');
-  }
+    errorDiv.style.display = 'flex'
+    errorTextDiv.textContent = 'no rooms created'
+    setTimeout(function() {
+      $('#error-div').fadeOut('slow');
+  }, 2000);
+}
 }    
 //booking
 
@@ -39,9 +43,9 @@ function renderCustomers(Bookings){
 
           // total days
           const startDate = new Date(booking.dataValues.createdAt);
-          const endDate = new Date(booking.dataValues.checkout);
+          const today = new Date();
 
-          const diffInMs = endDate - startDate;
+          const diffInMs = today - startDate;
           const totalDays = Math.floor(diffInMs / 86400000);
 
           tr.innerHTML =  `
@@ -66,7 +70,7 @@ function renderCustomers(Bookings){
                         data-id="${booking.dataValues.id}" 
                         data-fullname="${booking.dataValues.fullname}" 
                         data-phonenumber="${booking.dataValues.phonenumber}"
-                        data-checkout="${booking.dataValues.checkout}">
+                        data-roomno="${booking.dataValues.room_no}">
                         <i class="fas fa-user-edit"></i></button>
                       <button name="pay" class="btn btn-sm btn-success pay-booking" 
                         data-owed=${booking.dataValues.owed} 
@@ -87,7 +91,6 @@ function renderCustomers(Bookings){
               const fullname = payBookingButton.dataset.fullname;
               const id = payBookingButton.dataset.id;
               const owed = payBookingButton.dataset.owed
-
               $("#bookingId").val(id); // Assumes you're using jQuery
               $("#customerName").val(fullname); // Assumes you're using jQuery
               const amount = document.querySelector('#amount');
@@ -101,17 +104,15 @@ function renderCustomers(Bookings){
               // Retrieve fullname and id from data attributes
               const fullname = editBookingButton.dataset.fullname;
               const id = editBookingButton.dataset.id;
-              const checkout = editBookingButton.dataset.checkout;
               const phonenumber = editBookingButton.dataset.phonenumber;
-            
-              // Format checkout date
-              const checkoutDate = new Date(checkout);
-              const formattedCheckout = checkoutDate.toISOString().slice(0, 10);            
+              const roomno = editBookingButton.dataset.roomno;
+          
+          
               // Set values in modal inputs
               $("#editBookingId").val(id);
               $("#editFullname").val(fullname);
-              $("#checkout").val(formattedCheckout);
               $("#phonenumber").val(phonenumber);
+              $("#editRoomno").val(roomno);
             }); 
 
           const checkOutButton = tr.querySelector('.checkOut-booking');
@@ -121,7 +122,6 @@ function renderCustomers(Bookings){
               // Retrieve fullname and id from data attributes
               const fullname = checkOutButton.dataset.fullname;
               const id = checkOutButton.dataset.id;
-              const checkout = checkOutButton.dataset.checkout;
               const phonenumber = checkOutButton.dataset.phonenumber
               const owed = checkOutButton.dataset.owed
               const total = checkOutButton.dataset.total
@@ -130,7 +130,6 @@ function renderCustomers(Bookings){
               // Set values in modal inputs
               $("#bookingCheckOutId").val(id); // Assumes you're using jQuery
               $("#checkOutFullname").val(fullname); // Assumes you're using jQuery
-              $("#checkout").val(checkout); // Assumes you're using jQuery
               $("#checkOutPhonenumber").val(phonenumber); // Assumes you're using jQuery
               $("#total").val(total); // Assumes you're using jQuery
               $("#payed").val(payed); // Assumes you're using jQuery
@@ -150,21 +149,28 @@ document.addEventListener('DOMContentLoaded', () => {
   ipcRenderer.send('all-rooms');
   // delete Booking
   ipcRenderer.on('delete-booking-res', async(event, res)=>{
-    console.log(res.status)
     if(res.status == true){
       ipcRenderer.send('all-booking')
       $('#editModal').modal('hide')
-      alert('booking successfully deleted')
-   }else{
-     alert('an error occured')
-   }
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      $('#editModal').modal('hide')
+      errorTextDiv.textContent = res.message
+      displayError()
+    }
   })
   // checkOut Booking
   ipcRenderer.on('checkOut-booking-res', async(event, res)=>{
     if(res.status == true){
       ipcRenderer.send('all-booking')
       $('#checkOutModal').modal('hide')
-      alert('booking successfully checked out')
+      checkOutForm.reset()
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      errorTextDiv.textContent = res.message
+      displayError()
     }
   })
   // edit booking
@@ -172,9 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(res.status == true){
        ipcRenderer.send('all-booking')
        $('#editModal').modal('hide')
-       alert('booking successfully edited')
+       successTextDiv.textContent = res.message
+      displaySuccess()
     }else{
-      alert('an error occured')
+      errorTextDiv.textContent = res.message
+      displayError()
     }
   })
   // pay booking
@@ -182,12 +190,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if(res.status == true){
       $("#amount").val('');
       ipcRenderer.send('all-booking')
-      $('#payModal').modal('hide'); // close the modal on successful submission
-       alert('payment sent')
-      }
-    else {
-      $('#payModal').modal('hide'); // close the modal on successful submission
-      alert('an error occured')
+      $('#payModal').modal('hide'); 
+      payForm.reset()
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      $('#payModal').modal('hide'); 
+      errorTextDiv.textContent = res.message
+      displayError()
     }
       })
     // Add event listener to refresh list of customers when a new customer is added
@@ -206,12 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(res.status == true){
           ipcRenderer.send('all-booking');
           addCustomerForm.reset()
-        }else{
-          const errorDiv = document.createElement('div')
-          errorDiv.classList.add('alert', 'alert-danger');
-          errorDiv.textContent = res.message;
-          document.body.appendChild(errorDiv);
-          }
+          successTextDiv.textContent = res.message
+          displaySuccess()
+        }else{         
+          addCustomerForm.reset()
+          errorTextDiv.textContent = res.message
+          displayError()
+        }
       }catch(err){
         console.log(err)
       }
@@ -235,7 +246,6 @@ function addCustomer(e) {
   const phonenumber = formData.get('phonenumber');
   const cost = formData.get('cost');
   const checkin = formData.get('checkin');
-  const checkout = formData.get('checkout');
 
 
 
@@ -247,50 +257,20 @@ function addCustomer(e) {
       phonenumber,
       cost,
       checkin,
-      checkout,
     });
     $('#addCustomerModal').modal('hide'); // close the modal on successful submission
   } else {
-    const errorDiv = document.createElement('div');
-    errorDiv.classList.add('alert', 'alert-danger');
-    errorDiv.textContent = 'An error occurred. Please fill all required fields.';
-    addCustomerForm.prepend(errorDiv); // display the error message
+    errorDiv.style.display = 'flex'
+    errorTextDiv.textContent = 'An error occurred. Please fill all required fields.'
+    setTimeout(function() {
+      $('#error-div').fadeOut('slow');
+      }, 2000);
+ // display the error message
   }
-
-  const clearFullname = document.getElementById('fullname');
-
-    console.log(clearFullname.value)
 
 }
 
 addCustomerForm.addEventListener('submit', addCustomer);
-
-// Get today's date
-const today = new Date().toISOString().slice(0, 10);
-
-// Set the minimum date for checkin input
-const checkinInput = document.querySelector('#Checkin');
-checkinInput.setAttribute('min', today);
-
-// Add event listener to checkin input to prevent checkout from being before it
-checkinInput.addEventListener('change', () => {
-  const checkinDate = new Date(checkinInput.value);
-  const minCheckoutDate = new Date(checkinDate.getTime() + 86400000).toISOString().slice(0, 10);
-  const checkoutInput = document.querySelector('#Checkout');
-  checkoutInput.setAttribute('min', minCheckoutDate);
-});
-
-// Add event listener to checkout input to prevent today's date or before from being selected
-const checkoutInput = document.querySelector('#Checkout');
-checkoutInput.setAttribute('min', today);
-checkoutInput.addEventListener('change', () => {
-  const checkoutDate = new Date(checkoutInput.value);
-  const checkinDate = new Date(checkinInput.value);
-  if (checkoutDate <= checkinDate || checkoutDate.getTime() === new Date(today).getTime()) {
-    checkoutInput.value = '';
-  }
-});
-
 
 
 //pay booking
@@ -302,7 +282,6 @@ function pay(e){
   const formData = new FormData(payForm)
   const amount = formData.get('amount')
   const bookingId = formData.get('bookingId')
-
 
   ipcRenderer.send('pay-booking', {amount,bookingId})
   
@@ -320,10 +299,9 @@ function edit(e){
   const formData = new FormData(editForm)
   const fullname = formData.get('editFullname')
   const phonenumber = formData.get('phonenumber')
-  const checkout = formData.get('checkout')
   const bookingId = formData.get('editBookingId')
 
-  ipcRenderer.send('edit-booking', {bookingId, fullname, phonenumber, checkout})
+  ipcRenderer.send('edit-booking', {bookingId, fullname, phonenumber})
 }
 
 editForm.addEventListener('submit', edit)
@@ -352,5 +330,6 @@ function onDeleteClicked() {
   var bookingId = document.getElementById('editBookingId').value;
   const roomno = document.getElementById('editRoomno').value;
   ipcRenderer.send('delete-booking', {bookingId, roomno})
+  console.log(roomno)
 }
 document.getElementById('deleteBooking').addEventListener('click', onDeleteClicked);

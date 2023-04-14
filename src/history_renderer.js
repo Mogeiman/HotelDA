@@ -7,23 +7,24 @@ filterButton.addEventListener("click", () => {
   $("#filterModal").modal("show");
 });
 // render rooms
-const select = document.querySelector("#reinstateRoom");
+// const select = document.querySelector("#reinstateRoom");
 
-function renderRooms(Rooms) {
-  select.innerHTML = '<option value="">Select Room</option>';
-  if (Rooms && Rooms.length > 0) {
-    Rooms.forEach((room) => {
-      if (room.dataValues.room_status === 1) {
-        const option = document.createElement("option");
-        option.value = room.dataValues.room_no;
-        option.text = `Room ${room.dataValues.room_no}`;
-        select.appendChild(option);
-      }
-    });
-  } else {
-    alert("No rooms created");
-  }
-}
+// function renderRooms(Rooms) {
+//   select.innerHTML = '<option value="">Select Room</option>';
+//   if (Rooms && Rooms.length > 0) {
+//     Rooms.forEach((room) => {
+//       if (room.dataValues.room_status === 1) {
+//         const option = document.createElement("option");
+//         option.value = room.dataValues.room_no;
+//         option.text = `Room ${room.dataValues.room_no}`;
+//         select.appendChild(option);
+//       }
+//     });
+//   } else{
+//   errorTextDiv.textContent = 'No rooms at the moment'
+//   displayError()
+// }
+// }
 // render history
 
 const tbody = document.getElementById("tbody");
@@ -67,28 +68,27 @@ function renderHistory(Bookings){
         const dropdownMenu = tr.querySelector('.dropdown-menu');
         if (booking.dataValues.customer_status === 0) {
             dropdownMenu.innerHTML = `
-            <a class="dropdown-item reinstate-client" href="#" data-id="${booking.dataValues.id}" data-createdAt="${booking.dataValues.createdAt}" data-checkout="${booking.dataValues.checkout}" data-fullname="${booking.dataValues.fullname}">Reinstate Client</a>
             <a class="dropdown-item pay-owed" href="#" data-id="${booking.dataValues.id}" data-fullname="${booking.dataValues.fullname}" data-owed="${booking.dataValues.owed}"  ${booking.dataValues.owed <= 0 ? 'style="display: none;"' : ''}>Pay Owed</a>
           `;
           
-          const reinstateButton = tr.querySelector('.reinstate-client');
-          reinstateButton.addEventListener('click', () => {
-            $('#reinstateModal').modal("show");
-            const checkOut = reinstateButton.dataset.checkout;
-            const createdAt = reinstateButton.dataset.createdAt;
-            const id = reinstateButton.dataset.id;
+          // const reinstateButton = tr.querySelector('.reinstate-client');
+          // reinstateButton.addEventListener('click', () => {
+          //   $('#reinstateModal').modal("show");
+          //   const checkOut = reinstateButton.dataset.checkout;
+          //   const createdAt = reinstateButton.dataset.createdAt;
+          //   const id = reinstateButton.dataset.id;
 
             
             
 
-            const checkOutDate = new Date(checkOut);
-            const formattedCheckout = checkOutDate.toISOString().slice(0, 10);  
-            $("#reinstateCheckOut").val(formattedCheckout);
-            $("#reinstateCheckOut").attr("min", formattedCheckout);
+          //   const checkOutDate = new Date(checkOut);
+          //   const formattedCheckout = checkOutDate.toISOString().slice(0, 10);  
+          //   $("#reinstateCheckOut").val(formattedCheckout);
+          //   $("#reinstateCheckOut").attr("min", formattedCheckout);
           
           
-            $("#reinstateId").val(id);
-          });
+          //   $("#reinstateId").val(id);
+          // });
           
 
           const payBookingButton = tr.querySelector('.pay-owed')
@@ -141,20 +141,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if(res.status == true){
           $("#amount").val('');
           ipcRenderer.send('history-booking',initialData)
-          $('#payModal').modal('hide'); // close the modal on successful submission
-           alert('payment sent')
-          }
-        else {
-          $('#payModal').modal('hide'); // close the modal on successful submission
-          alert('an error occured')
+          $('#payModal').modal('hide');
+          payForm.reset()
+          successTextDiv.textContent = res.message
+          displaySuccess()
+        }else{
+          errorTextDiv.textContent = res.message
+          displayError()
         }
           })
   // reinstate client
   ipcRenderer.on("reinstate-client-res", async (event, res) => {
     if (res.status == true) {
       ipcRenderer.send("history-booking", initialData);
-      alert(res.message)
-      $('#reinstateModal').modal('hide'); // close the modal on successful submission
+      $('#reinstateModal').modal('hide'); 
+      reinstateForm.reset()
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      errorTextDiv.textContent = res.message
+      displayError()
     }
   });
 
@@ -163,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try{
       const { Bookings } = data;
       renderHistory(Bookings);
-      
       $("#filterModal").modal("hide");
     } catch (err) {
       console.log(err);
@@ -171,16 +176,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // rooms
-  ipcRenderer.send("all-rooms");
-  ipcRenderer.on("rooms-res", (event, data) => {
-    const { Rooms } = data;
-    renderRooms(Rooms);
-  });
+  // ipcRenderer.send("all-rooms");
+  // ipcRenderer.on("rooms-res", (event, data) => {
+  //   const { Rooms } = data;
+  //   renderRooms(Rooms);
+  // });
 });
 
 const historyForm = document.querySelector("#history-form");
 
 function filter(e) {
+  console.log('filter',e.target.id)
   e.preventDefault();
 
   const formData = new FormData(historyForm);
@@ -197,6 +203,7 @@ function filter(e) {
     bookingStatus,
     fromDate,
     toDate,
+    download: false
   };
     ipcRenderer.send("history-booking", data);
 }
@@ -211,35 +218,35 @@ toDateInput.min = fromDateInput.value;
 });
 
 //   reinstate client
-const reinstateForm = document.querySelector("#reinstate-booking-form");
+// const reinstateForm = document.querySelector("#reinstate-booking-form");
 
-function reinstateClient(e) {
-  e.preventDefault();
+// function reinstateClient(e) {
+//   e.preventDefault();
 
-    const formData = new FormData(reinstateForm);
+//     const formData = new FormData(reinstateForm);
   
-    const reinstateId = formData.get("reinstateId");
-    const reinstateRoom = formData.get("reinstateRoom");
-    const checkOut = formData.get("reinstateCheckOut");
-    console.log(reinstateId, checkOut)
-    ipcRenderer.send("reinstate-client", {
-      reinstateId,
-      reinstateRoom,
-      checkOut,
-    });
+//     const reinstateId = formData.get("reinstateId");
+//     const reinstateRoom = formData.get("reinstateRoom");
+//     const checkOut = formData.get("reinstateCheckOut");
+//     ipcRenderer.send("reinstate-client", {
+//       reinstateId,
+//       reinstateRoom,
+//       checkOut,
+//     });
   
-}
+// }
 
-reinstateForm.addEventListener("submit", reinstateClient);
+// reinstateForm.addEventListener("submit", reinstateClient);
 
 // pay owed
+
 
 const payForm = document.querySelector('#payCustomerForm')
 
 function pay(e){
   e.preventDefault()
   const formData = new FormData(payForm)
-  const amount = formData.get('amount')
+  const amount = formData.get('owedAmount')
   const bookingId = formData.get('bookingId')
 
 

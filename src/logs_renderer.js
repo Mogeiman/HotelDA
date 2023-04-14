@@ -25,8 +25,7 @@ function renderLogs(logs){
                           log.dataValues.action === 'Checkout' ? 'text-primary' :
                           log.dataValues.action === 'Create' ? 'text-success' :
                           log.dataValues.action === 'Pay' ? 'text-warning' :
-                          log.dataValues.action === 'Edit' ? 'text-info' :
-                          log.dataValues.action === 'Reinstate' ? 'text-success' : '';
+                          log.dataValues.action === 'Edit' ? 'text-info'  : '';
   
       const div = document.createElement('div')
       div.classList.add('row', 'mt-1')

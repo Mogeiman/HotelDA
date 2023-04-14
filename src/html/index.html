@@ -15,32 +15,66 @@
         <link href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
     </head>
 <body>
-    <div class="container">
-        <div class="card card-container">
-            <form id="login-form">
-                <div class="row">
-                    <div class="form-group col-lg-12">
-                        <label id="us">Username or Email</label>
-                        <input type="text" id="email" name="email" class="form-control" placeholder="" required
-                               data-error="Enter Username or Email">
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group col-lg-12">
-                        <label id="pas">Password</label>
-                        <input type="password" name="password" id="password"class="form-control" placeholder="" required
-                               data-error="Enter Password">
-                        <div class="help-block with-errors"></div>
-                    </div>
-                </div>
-    
-                <button class="btn btn-lg btn-success btn-block btn-signin" type="submit" name="login">LOGIN</button>
-    
-            </form><!-- /form -->
-            <p id="mes"></p>
-            <a href="fodder.html">login</a>
 
-        </div><!-- /card-container -->
+
+    <body class="bg-dark">
+  <div class="main-content">
+    <div class="header bg-gradient-primar py-7">
+      <div class="container">
+        <div class="header-body text-center mb-7">
+          <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-6">
+              <h1 class="text-white">Hotel System</h1>
+            </div>
+          </div> 
+        </div>
+      </div>
     </div>
+    <!-- Page content -->
+    <div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="card bg-secondary shadow border-0">
+            <div class="card-body px-lg-5 py-lg-5">
+              <form id="login-form" role="form">
+                <div class="form-group mb-3">
+                  <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                    </div>
+                    <input class="form-control" required name="email" id="email" placeholder="Email" type="text">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                    </div>
+                    <input class="form-control" required name="password" id="password" placeholder="Password" type="password">
+                  </div>
+                </div>
+                <div class="custom-control custom-control-alternative custom-checkbox">
+                  <input class="custom-control-input" id=" customCheckLogin" type="checkbox">
+                  <label class="custom-control-label" for=" customCheckLogin">
+                    <span class="text-muted">Remember me</span>
+                  </label>
+                </div> 
+                <div class="text-center">
+                  <button type="submit" name="login" class="btn btn-primary my-4">Log In</button>
+                </div>
+              </form>
+              <p id="mes"></p>
+              <p><a href="fodder.html">Signup</a></p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-6">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> 
+  </div>
     <script src="../index.js"></script>
 </body>
 </html>

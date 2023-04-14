@@ -10,6 +10,7 @@ const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    autoHideMenuBar: true,
     webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         contextIsolation: false,
@@ -48,12 +49,15 @@ app.whenReady().then(() => {
   bookingController.editBooking()
   bookingController.checkOut()
   bookingController.deleteBooking()
-  bookingController.reinstateClient()
+  // bookingController.reinstateClient()
+  bookingController.updateBookingScheduled()
+  bookingController.updateBookingsOnReady()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
+
 });
 
 

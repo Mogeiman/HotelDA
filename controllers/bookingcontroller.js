@@ -1,21 +1,13 @@
-const {DataTypes} = require('sequelize')
 const {ipcMain } = require('electron')
-const {sequelize} = require('../models')
+const { Customer, Logs, Room} = require('../models')
+const { Op } = require('sequelize');
+const cron = require('node-cron');
 
 
 const addCustomer = () =>{
-    ipcMain.on('add-customer', async(event,{fullname, room, cost, phonenumber, checkin, checkout}) => {                
-      const  Customer  = require('../models/customer')(sequelize, DataTypes);
-      const  Room  = require('../models/room')(sequelize, DataTypes);
-      const  Logs  = require('../models/logs')(sequelize, DataTypes);
+    ipcMain.on('add-customer', async(event,{fullname, room, cost, phonenumber}) => {                
       const action = "Create"
-      // Calculate total nights stayed
-      const checkinDate = new Date(checkin);
-      const checkoutDate = new Date(checkout);
-      const totalNights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
-  
       // Calculate total cost and owed amount
-      const totalCost = totalNights * cost;
       const details = `${fullname} has booked room ${room}`
       try {
         // Create customer and update room status
@@ -25,10 +17,9 @@ const addCustomer = () =>{
           room_no: room,
           costpernight: cost,
           payed: 0,
-          total_cost: totalCost, 
-          owed: totalCost,
+          total_cost: cost, 
+          owed: cost,
           customer_status: true,
-          checkout
         });
         await Logs.create({
           action,
@@ -37,7 +28,7 @@ const addCustomer = () =>{
         await Room.update({ room_status: 0 }, { where: { room_no: room } });
   
         // Emit event to update list of customers
-        event.sender.send('create-customer-res', {status: true});
+        event.sender.send('create-customer-res', {status: true, message: 'Booking Successful'});
       } catch (err) {
         console.log(err)
         event.sender.send('create-customer-res', {status: false, message: 'unknown error occured'});
@@ -47,15 +38,14 @@ const addCustomer = () =>{
 
   const allBooking = () =>{
     ipcMain.on('all-booking', async(event, data)=>{
-        const  Customer  = require('../models/customer')(sequelize, DataTypes);
         const customerStatus = 1;
         try{
             const Bookings = await Customer.findAll({where:{customer_status: customerStatus},
               order: [['updatedAt', 'DESC']]})
             if(!Bookings){
-                event.sender.send('bookings-res', {message: 'No bookings at the moment'})
+                event.sender.send('bookings-res', {status:false, message: 'No bookings at the moment'})
             }else{
-                event.sender.send('bookings-res', {Bookings})
+                event.sender.send('bookings-res', {Bookings, status: true, message: 'Bookings Loaded'})
             }
         }catch(err){
             console.log(err)
@@ -66,14 +56,12 @@ const addCustomer = () =>{
 
   const payBooking = () =>{
     ipcMain.on('pay-booking', async(event, {bookingId, amount})=>{
-      const  Customer  = require('../models/customer')(sequelize, DataTypes);
-      const  Logs  = require('../models/logs')(sequelize, DataTypes);
       const action = "Pay"
 
       try{
         const booking = await Customer.findOne({where:{id: bookingId}})
         if(!booking){
-          event.sender.send('pay-booking-res', {status: false, message: 'an error has occured'})
+          event.sender.send('pay-booking-res', {status: false, message: 'Payment Unsuccessful'})
         }else{
           const newPayed = booking.payed + Number(amount);
           const newOwed = booking.owed - Number(amount);
@@ -83,7 +71,7 @@ const addCustomer = () =>{
             action,
             details
           })
-          event.sender.send('pay-booking-res', {status: true, message: 'booking payment successful'})
+          event.sender.send('pay-booking-res', {status: true, message: 'Booking Payment Successful'})
         }
       }catch(err){
         console.log(err)
@@ -92,37 +80,25 @@ const addCustomer = () =>{
   }
 
   const editBooking = () =>{
-    ipcMain.on('edit-booking', async(event,{fullname, phonenumber, checkout, bookingId})=>{
-      const  Customer  = require('../models/customer')(sequelize, DataTypes);
-      const  Logs  = require('../models/logs')(sequelize, DataTypes);
+    ipcMain.on('edit-booking', async(event,{fullname, phonenumber, bookingId})=>{
       const action = "Edit"
       try{ 
         const Booking = await Customer.findOne({where: {id: bookingId}})
-        const payed = Booking.payed
-        const costpernight = Booking.costpernight
-        const checkedIn = Booking.createdAt
-        const checkoutTimestamp = new Date(checkout).getTime() // convert to timestamp
-        const daysOfStay = Math.ceil((checkoutTimestamp - checkedIn) / (1000 * 60 * 60 * 24))
-        const newTotalCost = daysOfStay * costpernight
-        const newOwed = newTotalCost - payed
         const details = `${Booking.fullname} has been edited.`
-        console.log(payed, ' ', costpernight, ' ', checkedIn, ' ', daysOfStay, ' ', newTotalCost, ' ', newOwed)
           await Customer.update({
             fullname, 
             phonenumber, 
-            checkout, 
-            total_cost: newTotalCost,
-            owed: newOwed
           },
             {where: {id: bookingId}})
             await Logs.create({
               action,
               details
             })
-          event.sender.send('edit-booking-res', {status: true, message: 'booking updated successful'})
+          event.sender.send('edit-booking-res', {status: true, message: 'Booking Updated Successfully'})
 
         }catch(err){
           console.log(err)
+          event.sender.send('edit-booking-res', {status: false, message: 'Booking Unsuccessfully'})
         }
     })
    
@@ -130,9 +106,6 @@ const addCustomer = () =>{
 
   const checkOut = () =>{
     ipcMain.on('checkOut-booking', async(event, {bookingId, roomno, amount})=>{
-          const  Customer  = require('../models/customer')(sequelize, DataTypes);
-          const  Room  = require('../models/room')(sequelize, DataTypes);
-          const  Logs  = require('../models/logs')(sequelize, DataTypes);
           const action = "Checkout"
 
           try{
@@ -149,9 +122,11 @@ const addCustomer = () =>{
                 action,
                 details
               })
-              event.sender.send('checkOut-booking-res', {status: true})
+              event.sender.send('checkOut-booking-res', {status: true, message: 'Booking Successfully Checked Out'})
           }catch(err){
             console.log(err)
+            event.sender.send('checkOut-booking-res', {status: false, message: 'Check Out Unsuccessful'})
+
           }
     })
 
@@ -159,33 +134,27 @@ const addCustomer = () =>{
 
   const deleteBooking = () => {
     ipcMain.on('delete-booking', async(event, {bookingId, roomno})=>{
-      const  Customer  = require('../models/customer')(sequelize, DataTypes);
-      const  Room  = require('../models/room')(sequelize, DataTypes);
-      const  Logs  = require('../models/logs')(sequelize, DataTypes);
-
       const action = "Delete"
       try{
         const Customers = await Customer.findByPk(bookingId)
         const details = ` ${Customers.fullname} booking has been deleted`
         await Customer.destroy({where :{id: bookingId}})
-        await Room.update({room_status: true}, {where: {room_no: roomno}})
+        await Room.update({room_status: 1}, {where: {room_no: roomno}})
         await Logs.create({
           action,
           details
         })
-        event.sender.send('delete-booking-res', {status: true})
+        event.sender.send('delete-booking-res', {status: true, message: 'Booking Successfully Deleted'})
       }catch(err){
         console.log(err)
+        event.sender.send('delete-booking-res', {status: true, message: 'Unable To Delete Booking'})
       }
     })
   }
   
 
   const historyBooking = () => {
-    ipcMain.on('history-booking', async (event, { historyCustomerName, bookingStatus, paymentStatus, fromDate, toDate }) => {
-      const Customer = require('../models/customer')(sequelize, DataTypes);
-      const { Op } = require('sequelize');
-  
+    ipcMain.on('history-booking', async (event, { historyCustomerName, bookingStatus, paymentStatus, fromDate, toDate, download }) => {      
       try {
         // Create an empty object to hold the filters that will be applied
         const filters = {};
@@ -242,7 +211,11 @@ const addCustomer = () =>{
         if (!Bookings || Bookings.length === 0) {
           event.sender.send('history-booking-res', { status: false, message: 'No bookings at the moment' });
         } else {
-          event.sender.send('history-booking-res', { status: true, Bookings });
+          event.sender.send('history-booking-res', { status: true, Bookings , message: 'Bookings Successfully Loaded'});
+          if(download){
+            event.sender.send('download-history-booking-res', { status: true, Bookings , message: 'Bookings Successfully Loaded'});
+
+          }
         }
       } catch (err) {
         console.log(err);
@@ -250,50 +223,92 @@ const addCustomer = () =>{
     });
   };
   
-  const reinstateClient = () =>{
-    ipcMain.on('reinstate-client', async(event,{reinstateId, reinstateRoom, checkOut}) => {                
-      const  Customer  = require('../models/customer')(sequelize, DataTypes);
-      const  Room  = require('../models/room')(sequelize, DataTypes);
-      const  Logs  = require('../models/logs')(sequelize, DataTypes);
-      const action = "Reinstate"
-      // Calculate total nights stayed
-      const Booking = await Customer.findOne({where: {id: reinstateId}})
-      const checkin = Booking.createdAt
-      const checkinDate = new Date(checkin);
-      const checkoutDate = new Date(checkOut);
-      const totalNights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+  // const reinstateClient = () =>{
+  //   ipcMain.on('reinstate-client', async(event,{reinstateId, reinstateRoom}) => {                
+  //     const  Customer  = require('../models/customer')(sequelize, DataTypes);
+  //     const  Room  = require('../models/room')(sequelize, DataTypes);
+  //     const  Logs  = require('../models/logs')(sequelize, DataTypes);
+  //     const action = "Reinstate"
+  //     // Calculate total nights stayed
+  //     const Booking = await Customer.findOne({where: {id: reinstateId}})
+  //     const checkin = Booking.createdAt
+  //     const checkinDate = new Date(checkin);
+  //     const checkoutDate = new Date(checkOut);
+  //     const totalNights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
   
-      // Calculate total cost and owed amount
-      const totalCost = totalNights * Booking.costpernight;
-      const newOwed = totalCost - Number(Booking.payed)
+  //     // Calculate total cost and owed amount
+  //     const totalCost = totalNights * Booking.costpernight;
+  //     const newOwed = totalCost - Number(Booking.payed)
 
-      const details = `${Booking.fullname} has been reinstated to room ${reinstateRoom}`
-      try {
-        // Create customer and update room status
-        await Customer.update({
-          room_no: reinstateRoom,
-          total_cost: totalCost, 
-          owed: newOwed,
-          customer_status: true,
-          checkout: checkoutDate
-        }, {
-          where: {
-            id: reinstateId
-          }
-        });
-        await Logs.create({
-          action,
-          details
-        })
-        await Room.update({ room_status: 0 }, { where: { room_no: reinstateRoom } });
+  //     const details = `${Booking.fullname} has been reinstated to room ${reinstateRoom}`
+  //     try {
+  //       // Create customer and update room status
+  //       await Customer.update({
+  //         room_no: reinstateRoom,
+  //         total_cost: totalCost, 
+  //         owed: newOwed,
+  //         customer_status: true,
+  //         checkout: checkoutDate
+  //       }, {
+  //         where: {
+  //           id: reinstateId
+  //         }
+  //       });
+  //       await Logs.create({
+  //         action,
+  //         details
+  //       })
+  //       await Room.update({ room_status: 0 }, { where: { room_no: reinstateRoom } });
   
-        // Emit event to update list of customers
-        event.sender.send('reinstate-client-res', {status: true, message: 'successfully reinstated'});
-      } catch (err) {
-        console.log(err)
-        event.sender.send('reinstate-client-res', {status: false, message: 'unknown error occured'});
-      }
-    })
-  }
+  //       // Emit event to update list of customers
+  //       event.sender.send('reinstate-client-res', {status: true, message: 'Booking Successfully Reinstated'});
+  //     } catch (err) {
+  //       console.log(err)
+  //       event.sender.send('reinstate-client-res', {status: false, message: 'unknown error occured'});
+  //     }
+  //   })
+  // }
 
-module.exports = {addCustomer, allBooking, payBooking, editBooking, checkOut, deleteBooking, historyBooking, reinstateClient}
+
+  const updateBookingScheduled = () => {
+    cron.schedule('0 */3 * * *', async () => {
+      const bookings = await Customer.findAll({where: {customer_status: true}});
+      bookings.forEach(async (booking) => {
+        const checkInDate = booking.createdAt;
+        const today = new Date();
+        const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
+        const diffDays = Math.round(Math.abs((today - checkInDate) / oneDay));
+        const totalOwed = (diffDays <= 0) ? booking.costpernight : diffDays * booking.costpernight;
+        const newOwed = Number(totalOwed-booking.payed)
+        await booking.update({ total_cost: totalOwed, owed: newOwed });
+      });
+    });
+  };
+  
+
+  const updateBookingsOnReady = async () => {
+    const bookings = await Customer.findAll({where: {customer_status: true}});
+    for (const booking of bookings) {
+      const checkInDate = booking.createdAt;
+      const today = new Date();
+      const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
+      const diffDays = Math.round(Math.abs((today - checkInDate) / oneDay));
+      const totalOwed = (diffDays <= 0) ? booking.costpernight : diffDays * booking.costpernight;
+      const newOwed = Number(totalOwed-booking.payed)
+      await booking.update({ total_cost: totalOwed, owed: newOwed });
+    }
+  };
+  
+
+module.exports = {
+                  addCustomer,
+                  allBooking, 
+                  payBooking, 
+                  editBooking, 
+                  checkOut, 
+                  deleteBooking, 
+                  historyBooking, 
+                  // reinstateClient,
+                  updateBookingScheduled,
+                  updateBookingsOnReady
+                }

@@ -20,7 +20,7 @@ const createRoom = () =>{
         action,
         details
       })
-      event.sender.send('create-room-res', {state: true});
+      event.sender.send('create-room-res', {state: true, message: 'Room Successfully Created'});
     }catch(err){
       event.sender.send('create-room-res', {state: false, message: 'unknown error occured'});
     }
@@ -56,9 +56,10 @@ const editRooms = () => {
       action,
       details
     })
-    event.sender.send('edit-room-res', {status: true})
+    event.sender.send('edit-room-res', {status: true, message: 'Room Successfully Edited'})
   }catch(err){
     console.log(err)
+    event.sender.send('edit-room-res', {status: true, message: 'Unable To Edit Room'})
   }
   })
  
@@ -72,7 +73,7 @@ const deleteRooms = () => {
     try{
       const room = await Room.findOne({where: {id}})
       if(room.room_status == 0){
-        event.sender.send('delete-room-res', {status: false, message: 'room is occupied'})
+        event.sender.send('delete-room-res', {status: false, message: 'Room is Occupied'})
       }else{
         const details = `Room ${room.room_no} has been deleted`
         await Logs.create({
@@ -80,7 +81,7 @@ const deleteRooms = () => {
           details
         })
         await Room.destroy({where: {id}})
-        event.sender.send('delete-room-res', {status:true, message: 'room successfully deleted'})
+        event.sender.send('delete-room-res', {status:true, message: 'Room Successfully Deleted'})
       }
     }catch(err){
       console.log(err)

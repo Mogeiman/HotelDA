@@ -61,8 +61,6 @@ function getForm(e) {
     e.preventDefault();
   
     // Check if the download button was clicked
-    if (e.target === downloadButton) {
-  
         const formData = new FormData(historyForm);
 
         const historyCustomerName = formData.get("historyCustomerName") || "default";
@@ -76,17 +74,16 @@ function getForm(e) {
           bookingStatus,
           fromDate,
           toDate,
+          download: true
         };
       
         ipcRenderer.send("history-booking", data);
       
-        ipcRenderer.on("history-booking-res", (event, res) => {
+        ipcRenderer.on("download-history-booking-res", (event, res) => {
           const { Bookings } = res;
           downloadAsPdf(Bookings);
+          historyForm.reset()
+
         });
-    } else {
-      // The filter button was clicked, do nothing
-      return;
-    }
   }
   

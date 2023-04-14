@@ -77,20 +77,28 @@ function renderRooms(Rooms) {
 document.addEventListener('DOMContentLoaded', () => {
   // delete room
   ipcRenderer.on('delete-room-res', async(even, res)=>{
+    if(res.status == true){
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      errorTextDiv.textContent = res.message
+      displayError()
+    }
     ipcRenderer.send('all-rooms')
-    alert(res.message)
-    $("#editModal").modal("hide");
+
+  $("#editModal").modal("hide");
 
   })
   // edit room
   ipcRenderer.on('edit-room-res', async(event, res)=>{
     if(res.status == true){
       ipcRenderer.send('all-rooms')
-      alert('Room successfuly updated')
       $("#editModal").modal("show");
-
+      successTextDiv.textContent = res.message
+      displaySuccess()
     }else{
-      alert('an error occured')
+      errorTextDiv.textContent = res.message
+      displayError()
     }
   })
   ipcRenderer.send('all-rooms');
@@ -102,12 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ipcRenderer.on('create-room-res', (event, res) => {
     if (res.state == true) {
       ipcRenderer.send('all-rooms');
-      alert('room created');
-    } else {
-      const errorDiv = document.createElement('div');
-      errorDiv.classList.add('alert', 'alert-danger');
-      errorDiv.textContent = res.message;
-      document.body.appendChild(errorDiv); // display the error message
+      successTextDiv.textContent = res.message
+      displaySuccess()
+    }else{
+      errorTextDiv.textContent = res.message
+      displayError()
     }
   });
 });
@@ -129,11 +136,11 @@ function roomCreation(e) {
   if (data) {
     ipcRenderer.send('create-room', { data });
     $('#addRoomModal').modal('hide'); // close the modal on successful submission
-  } else {
-    const errorDiv = document.createElement('div');
-    errorDiv.classList.add('alert', 'alert-danger');
-    errorDiv.textContent = 'An error occurred. Please fill all required fields.';
-    addRoomForm.prepend(errorDiv); // display the error message
+    successTextDiv.textContent = res.message
+    displaySuccess()
+  }else{
+    errorTextDiv.textContent = res.message
+    displayError()
   }
 }
 
